@@ -9,6 +9,7 @@ import java.net.Socket;
 import java.util.*;
 
 public class Servidor extends Thread {
+    
 
     private static Map MAP_CLIENTES;
     private Socket conexao;
@@ -40,8 +41,8 @@ public class Servidor extends Thread {
     public static void main(String args[]) {
         MAP_CLIENTES = new HashMap();
         try {
-            ServerSocket server = new ServerSocket(8888);
-            System.out.println("ServidorSocket rodando na porta 8888");
+            ServerSocket server = new ServerSocket(7878);
+            System.out.println("Servidor rodando na porta " + server.getLocalPort());
             while (true) {
                 Socket conexao = server.accept();
                 Thread t = new Servidor(conexao);
@@ -90,25 +91,35 @@ public class Servidor extends Thread {
         }
     }
 
-    /**
-     * Se o array da msg tiver tamanho igual a 1, então envia para todos Se o
-     * tamanho for 2, envia apenas para o cliente escolhido
-     */
-    public void send(PrintStream saida, String acao, String[] msg) {
-        out:
-        for (Iterator it = MAP_CLIENTES.entrySet().iterator(); it.hasNext();) {
+    public void send(PrintStream saida, String acao, String[] msg) throws IOException {
+        Iterator it = MAP_CLIENTES.entrySet().iterator();
+        while (it.hasNext()) {
             Map.Entry cliente = (Map.Entry) it.next();
             PrintStream chat = (PrintStream) cliente.getValue();
             if (chat != saida) {
                 if (msg.length == 1) {
-                    chat.println(this.nomeCliente + acao + msg[0]);
+                    sendToAll(acao, msg, chat);
                 } else {
                     if (msg[1].equalsIgnoreCase((String) cliente.getKey())) {
-                        chat.println(this.nomeCliente + acao + msg[0]);
-                        break out;
+                        sendToOne(acao, msg, chat, cliente);
                     }
                 }
             }
         }
+    }
+
+    private void sendToAll(String acao, String[] msg, PrintStream chat) throws IOException {
+        
+        chat.println(this.nomeCliente + acao + msg[0]);
+
+    }
+
+    private void sendToOne(String acao, String[] msg, PrintStream chat, Map.Entry cliente) throws IOException {
+        out:
+        if (msg[1].equalsIgnoreCase((String) cliente.getKey())) {
+            chat.println(this.nomeCliente + acao + msg[0]);
+            break out;
+        }
+
     }
 }

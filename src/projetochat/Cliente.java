@@ -22,7 +22,7 @@ public class Cliente extends Thread {
         try {
             //Instancia do atributo conexao do tipo Socket, 
 			// conecta a IP do Servidor, Porta
-            Socket socket = new Socket("localhost", 8888);
+            Socket socket = new Socket("localhost", 7878);
             //Instancia do atributo saida, obtem os objetos que permitem 
 			// controlar o fluxo de comunicação
             PrintStream saida = new PrintStream(socket.getOutputStream());
